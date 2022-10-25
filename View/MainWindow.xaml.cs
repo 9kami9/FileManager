@@ -1,17 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FileManager.Models;
+using FileManager.View;
+using FileManager.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace FileManager
 {
@@ -23,6 +15,20 @@ namespace FileManager
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void ListViewItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var item = sender as ListViewItem;
+            MainViewModel vm = (MainViewModel)DataContext;
+            vm.CurrentPath = ((IModel)item.Content).Path;
+
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            FileVisitHistoryWindow fileVisitHistoryWindow = new FileVisitHistoryWindow();
+            fileVisitHistoryWindow.ShowDialog();
         }
     }
 }

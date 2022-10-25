@@ -13,5 +13,9 @@ namespace FileManager.Models
         public string Icon { get; set; }
         public double Size { get; set; }
         public DateTime DateCreated { get; set; }
+        public DateTime LastWriteTime { get; set; }
+        public DateTime LastAccessTime { get; set; }
+
+
     }
 }

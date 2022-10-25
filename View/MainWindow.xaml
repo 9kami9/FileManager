@@ -12,7 +12,7 @@
         <vm:MainViewModel/>
     </Window.DataContext>
     <Window.Resources>
-        <local:MainViewModel x:Key="viewModel"/>
+        <local:MainViewModel x:Key="viewModel" />
     </Window.Resources>
     
     <Border Background="Transparent">
@@ -31,47 +31,60 @@
                 </Grid.RowDefinitions>
 
                 <TextBox Grid.Column="0"
-                         Text="{Binding CurrentPath}"
+                         Text="{Binding CurrentPath, Mode=TwoWay}"
                          Height="30" 
                          Width="550">                    
                 </TextBox>
-                
-                <TextBlock Grid.Column="1" 
-                           Text="Search:"
-                           FontSize="14"
-                           VerticalAlignment="Center" 
-                           Margin="25">                    
-                </TextBlock>
-                <TextBox Grid.Column="1" 
-                         Height="30" 
-                         Width="150">                    
-                </TextBox>
+                <Button Height="30"
+                        Width="45"
+                        HorizontalAlignment="Right"
+                        Content="Back..."
+                        Command="{Binding BackCommand}">
+                </Button>
 
-                
-                <ListBox ItemsSource="{Binding Items}"
-                         SelectedValue="{Binding SelectedItem, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                         Grid.Column="0" 
-                         Grid.Row="1" 
-                         Width="550" 
-                         Height="450">
-                    <ListBox.ItemTemplate>
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center">
+                    <TextBox Grid.Column="1" 
+                             Text="{Binding SearchText, Mode=OneWayToSource}"
+                         Height="30" 
+                         Width="200">                    
+                </TextBox>
+                 <Button Content="Search" Height="30" Width="40" HorizontalAlignment="Right" Command="{Binding SearchCommand}"/>
+                </StackPanel>
+
+
+                <ListView ItemsSource="{Binding Items}"
+                          SelectedValue="{Binding SelectedItem, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                          Name="listView1"
+                          Grid.Column="0"
+                          Grid.Row="1"
+                          Width="550"
+                          Height="450">
+                    <ListView.ItemTemplate>
+
                         <DataTemplate>
-                            <ListBoxItem>
-                                <StackPanel x:Name="item" VerticalAlignment="Center" Orientation="Horizontal">
-                                    <Image Source="{Binding Icon}"
-                                           Height="20"
-                                           Width="20"/>
-                                    <Label VerticalAlignment="Center"
-                                           Content="{Binding Name}"/>
-                                </StackPanel>
-                                <ListBoxItem.InputBindings>
-                                    <MouseBinding Command="{Binding SingleClickCommand, Source={StaticResource viewModel}}" CommandParameter="{Binding SelectedItem, Source={StaticResource viewModel}}" MouseAction="LeftClick"/>
-                                    <MouseBinding Command="{Binding DoubleClickCommand, Source={StaticResource viewModel}}" CommandParameter="{Binding SelectedItem, Source={StaticResource viewModel}}" MouseAction="LeftDoubleClick" />
-                                </ListBoxItem.InputBindings>
-                            </ListBoxItem>
+                            <StackPanel x:Name="item"
+                                        VerticalAlignment="Center"
+                                        Width="400"
+                                        Orientation="Horizontal">
+                                <Image Source="{Binding Icon}"
+                                       Height="20"
+                                       Width="20" />
+                                <Label VerticalAlignment="Center"
+                                       Content="{Binding Name}">
+                                </Label>
+                            </StackPanel>
                         </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+
+                    </ListView.ItemTemplate>
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem" >
+                            <EventSetter Event="MouseDoubleClick"
+                                         Handler="ListViewItem_MouseDoubleClick" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                </ListView>
 
                 <Border Grid.Row="1" 
                         Grid.Column="1" 
@@ -85,9 +98,17 @@
                                Background="White"
                                Grid.Row="1" 
                                Width="250" 
-                               Height="450">                    
-                    </TextBlock>
+                               Height="450">  
+                    </TextBlock>                    
                 </Border>
+                <Button Grid.Column="1"
+                        Grid.Row="1"
+                        Height="30"
+                        Width="250"
+                        VerticalAlignment="Bottom"
+                        Margin="0,12"
+                        Content="File visit history"
+                        Click="Button_Click"                       />
             </Grid>
         </Border>
     </Border>
