@@ -13,7 +13,17 @@ namespace FileManager.ViewModels
     {
         private AppDBContext _dbc;
         private SQLiteService _sQLiteService;
+
         public ObservableCollection<FileDB> Items { get; set; }
+
+        private void LoadHistory()
+        {
+            Items.Clear();
+            foreach (var item in _sQLiteService.ListAll())
+            {
+                Items.Add(item);
+            }
+        }
 
         public FileVisitHistoryViewModel()
         {
@@ -23,16 +33,6 @@ namespace FileManager.ViewModels
 
             Items = new ObservableCollection<FileDB>();
             LoadHistory();
-
-        }
-
-        private void LoadHistory()
-        {
-            Items.Clear();
-            foreach (var item in _sQLiteService.ListAll())
-            {
-                Items.Add(item);
-            }
         }
     }
 }

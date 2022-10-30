@@ -10,6 +10,7 @@ namespace FileManager.DB
     public class SQLiteService
     {
         private AppDBContext _dbc;
+
         public SQLiteService(AppDBContext dbc)
         {
             _dbc = dbc;
@@ -17,17 +18,14 @@ namespace FileManager.DB
 
         public FileDB AddToDb(string fileName, DateTime dateVisited)
         {
-            FileDB fileDB = new FileDB();
-            fileDB.Name = fileName;
-            fileDB.DateVisited = dateVisited;
-            return AddToDb(fileDB);
-        }
-
-        private FileDB AddToDb(FileDB fileVisit)
-        {
-            _dbc.Files.Add(fileVisit);
+            FileDB fileDB = new()
+            {
+                Name = fileName,
+                DateVisited = dateVisited
+            };
+            _dbc.Files.Add(fileDB);
             _dbc.SaveChanges();
-            return fileVisit;
+            return fileDB;
         }
 
         public List<FileDB> ListAll()

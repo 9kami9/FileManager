@@ -15,7 +15,5 @@ namespace FileManager.Models
         public DateTime DateCreated { get; set; }
         public DateTime LastWriteTime { get; set; }
         public DateTime LastAccessTime { get; set; }
-
-
     }
 }

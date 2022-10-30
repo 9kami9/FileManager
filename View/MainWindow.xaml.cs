@@ -17,18 +17,11 @@ namespace FileManager
             InitializeComponent();
         }
 
-        private void ListViewItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            var item = sender as ListViewItem;
-            MainViewModel vm = (MainViewModel)DataContext;
-            vm.CurrentPath = ((IModel)item.Content).Path;
-
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            FileVisitHistoryWindow fileVisitHistoryWindow = new FileVisitHistoryWindow();
-            fileVisitHistoryWindow.ShowDialog();
-        }
+        //private void ListViewItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        //{
+        //    var item = sender as ListViewItem;
+        //    MainViewModel vm = (MainViewModel)DataContext;
+        //    vm.CurrentPath = ((IModel)item.Content).Path;
+        //}
     }
 }

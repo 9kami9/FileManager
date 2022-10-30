@@ -1,28 +1,30 @@
-﻿<Window x:Class="FileManager.View.FileVisitHistoryWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:FileManager.View"        
-        xmlns:vm="clr-namespace:FileManager.ViewModels"
-        mc:Ignorable="d"
-        Title="FileVisitHistory" Height="500" Width="400" ResizeMode="NoResize">
+﻿<Window
+    x:Class="FileManager.View.FileVisitHistoryWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:FileManager.View"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:FileManager.ViewModels"
+    Title="FileVisitHistory"
+    Width="400"
+    Height="500"
+    ResizeMode="NoResize"
+    mc:Ignorable="d">
     <Window.DataContext>
-        <vm:FileVisitHistoryViewModel/>
+        <vm:FileVisitHistoryViewModel />
     </Window.DataContext>
     <Grid>
         <ListBox ItemsSource="{Binding Items}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel>
-                        <Label VerticalAlignment="Center"
-                                       Content="{Binding Name}"/>
-                        <Label VerticalAlignment="Center"
-                                       Content="{Binding DateVisited}"/>
+                        <Label Content="{Binding Name}" />
+                        <Label Content="{Binding DateVisited}" />
                     </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        
+
     </Grid>
 </Window>

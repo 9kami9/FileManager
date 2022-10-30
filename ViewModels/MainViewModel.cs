@@ -2,6 +2,7 @@
 using FileManager.Converter;
 using FileManager.DB;
 using FileManager.Models;
+using FileManager.View;
 using FileManager.ViewModels.Helpers;
 using System;
 using System.Collections.Generic;
@@ -17,64 +18,79 @@ namespace FileManager.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-        private AppDBContext _dbc;
-
-        private SQLiteService _sQLiteService;
+        private readonly AppDBContext _dbc;
+        private readonly SQLiteService _sQLiteService;
+        private readonly InformationHelper _informationHelper = new();
+        private string _searchText;
+        private string _currentPath;
+        private RelayCommand _doubleClickCommand;
+        private RelayCommand _backCommand;
+        private RelayCommand _searchCommand;
+        private RelayCommand _openFileVisitHistoryCommand;
+        private string _info;
+        private IModel _selectedItem;
 
         public ObservableCollection<IModel> Items { get; set; }
 
-        private string _searchText;
         public string SearchText
         {
-            get { return _searchText; }
-            set { _searchText = value;
-                OnPropertyChanged("SearchText");
+            get => _searchText;
+            set 
+            { 
+                _searchText = value;
+                OnPropertyChanged(nameof(SearchText));
             }
         }
 
-        private string _currentPath;
         public string CurrentPath
         {
-            get { return _currentPath; }
+            get => _currentPath; 
             set
             {
                 _currentPath = value;
-                OnPropertyChanged("CurrentPath");
+                OnPropertyChanged(nameof(CurrentPath));
                 ChangeFolderPathOrOpenFile((string)value);
             }
         }
 
-        private RelayCommand _backCommand;
-        public RelayCommand BackCommand
+        public RelayCommand DoubleClickCommand
         {
-            get { return _backCommand ?? (_backCommand = new RelayCommand(o => SetPathToParent())) ; }
+            get => _doubleClickCommand ??= new RelayCommand(o => ChangeFolderPathOrOpenFile(SelectedItem.Path));
         }
 
-        private RelayCommand _searchCommand;
+        public RelayCommand BackCommand
+        {
+            get => _backCommand ??= new RelayCommand(o => SetPathToParent());
+        }
+
         public RelayCommand SearchCommand
         {
-            get
+            get => _searchCommand ??= new RelayCommand(o => Search());
+        }
+
+        public RelayCommand OpenFileVisitHistoryCommand
+        {
+            get => _openFileVisitHistoryCommand ??= new RelayCommand(o => OpenFileVisitHistory());
+        }
+
+        public string Info
+        {
+            get => _info; 
+            set 
             {
-                return _searchCommand ?? (_searchCommand = new RelayCommand(o => Search()));
+                _info = value;
+                OnPropertyChanged(nameof(Info)); 
             }
         }
 
-        private string _info;
-        public string Info
-        {
-            get { return _info; }
-            set { _info = value; OnPropertyChanged(nameof(Info)); }
-        }
-
-        private IModel _selectedItem;
         public IModel SelectedItem
         {
-            get { return _selectedItem; }
+            get => _selectedItem; 
             set
             {
                 _selectedItem = value;
                 OnPropertyChanged(nameof(SelectedItem));
-                Info = InformationHelper.GetInfo(value);
+                Info = _informationHelper.GetInfo(value);
             }
         }
 
@@ -83,7 +99,6 @@ namespace FileManager.ViewModels
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
 
         public MainViewModel()
         {
@@ -105,29 +120,12 @@ namespace FileManager.ViewModels
             {
                 try
                 {
-                    Items.Add(new Drive()
-                    {
-                        Name = drive.Name,
-                        Path = drive.RootDirectory.ToString(),
-                        Icon = "/Icons/drive.png",
-                        Size = drive.TotalSize,
-                        AvailableSpace = drive.AvailableFreeSpace,
-                        DriveType = drive.DriveType,
-                        FileCount = Directory.GetFiles(drive.RootDirectory.ToString(), "*", SearchOption.TopDirectoryOnly).Count()
-                    });
+                    int fileCount = Directory.GetFiles(drive.RootDirectory.ToString(), "*", SearchOption.TopDirectoryOnly).Length;
+                    AddItemsHelper.AddNewDrive(drive, fileCount, Items);
                 }
                 catch (UnauthorizedAccessException)
                 {
-                    Items.Add(new Drive()
-                    {
-                        Name = drive.Name,
-                        Path = drive.RootDirectory.ToString(),
-                        Icon = "/Icons/drive.png",
-                        Size = drive.TotalSize,
-                        AvailableSpace = drive.AvailableFreeSpace,
-                        DriveType = drive.DriveType,
-                        FileCount = 0
-                    });
+                    AddItemsHelper.AddNewDrive(drive, 0, Items);
                 }
             }
         }
@@ -141,100 +139,34 @@ namespace FileManager.ViewModels
                 {
                     FileAttributes attr = System.IO.File.GetAttributes(path);
                     if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
-                        OpenFolder(path);
-
+                    {
+                        OpenItemsHelper.OpenFolder(path, Items);
+                    }
                     else
-                        OpenFile(path);
+                    {
+                        OpenItemsHelper.OpenFile(path, _sQLiteService);
+                    }
                 }
-                catch
+                catch (Exception)
                 {
                     MessageBox.Show("This path doesn't exist or folder can't be opened");
                 }
             }
             else
+            {
                 GetDrives();
-
-        }
-
-        private void OpenFile(string path)
-        {
-            var fileName = Path.GetFileName(path);
-            DateTime dateVisited = DateTime.Now;
-            var p = new Process();
-
-            p.StartInfo = new ProcessStartInfo(path)
-            {
-                UseShellExecute = true
-            };
-            // Opens file
-            p.Start();
-            
-            // Add record to Db
-            _sQLiteService.AddToDb(fileName, dateVisited);
-        }
-
-        private void OpenFolder(string path)
-        {
-            var filesAndFolders = Directory.GetFileSystemEntries(path).ToList();
-
-            Items.Clear();
-            foreach (var item in filesAndFolders)
-            {
-                var itemInfo = new FileInfo(item);
-
-                if (itemInfo.Attributes.HasFlag(FileAttributes.Directory))
-                    AddFolderToListItem(itemInfo);  
-                else
-                    AddFileToListItem(itemInfo); 
             }
-        }
 
-        private void AddFileToListItem(FileInfo fileInfo)
-        {
-            Items.Add(new Models.File()
-            {
-                Name = fileInfo.Name,
-                Path = fileInfo.FullName,
-                Icon = "/Icons/file.png",
-                Size = fileInfo.Length,
-                LastWriteTime = fileInfo.LastWriteTime,
-                LastAccessTime = fileInfo.LastAccessTime,
-                DateCreated = fileInfo.CreationTime
-            });
-        }
-
-        private void AddFolderToListItem(FileInfo fileInfo)
-        {
-            try
-            {
-                Items.Add(new Folder()
-                {
-                    Name = fileInfo.Name,
-                    Path = fileInfo.FullName,
-                    Icon = "/Icons/folder.png",
-                    AmountOfFiles = Directory.GetFiles(fileInfo.FullName.ToString(), "*", SearchOption.TopDirectoryOnly).Count(),
-                    Size = Directory.GetFiles(fileInfo.FullName.ToString(), "*", SearchOption.TopDirectoryOnly).Sum(x => new FileInfo(x).Length)
-                });
-            }
-            catch (UnauthorizedAccessException)
-            {
-                Items.Add(new Folder()
-                {
-                    Name = fileInfo.Name,
-                    Path = fileInfo.FullName,
-                    Icon = "/Icons/folder.png",
-                    AmountOfFiles = 0,
-                    Size = 0
-                });
-            }
-        }
+        }                   
 
         private void SetPathToParent()
         {
             if (!string.IsNullOrWhiteSpace(CurrentPath))
             {
                 if (Directory.GetParent(CurrentPath) != null)
+                {
                     CurrentPath = Directory.GetParent(CurrentPath).ToString();
+                }
                 else
                 {
                     GetDrives();
@@ -242,7 +174,9 @@ namespace FileManager.ViewModels
                 }
             }
             else
+            {
                 MessageBox.Show("Already at top-most directory");
+            }
         }
 
         private void Search()
@@ -254,7 +188,6 @@ namespace FileManager.ViewModels
                 Items.Clear();
                 foreach (var item in items)
                 {
-
                     Items.Add(new Folder()
                     {
                         Icon = item.Icon,
@@ -264,9 +197,16 @@ namespace FileManager.ViewModels
                 }
             }
             else
+            {
                 // If search text is empty: repopulate Items
                 ChangeFolderPathOrOpenFile(CurrentPath);
+            }
         }
 
+        private void OpenFileVisitHistory()
+        {
+            FileVisitHistoryWindow fileVisitHistoryWindow = new FileVisitHistoryWindow();
+            fileVisitHistoryWindow.ShowDialog();
+        }
     }
 }
