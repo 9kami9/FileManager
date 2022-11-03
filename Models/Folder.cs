@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 
 namespace FileManager.Models
 {
-    public class Folder : IModel
+    public class Folder : BaseModel
     {
-        public string Name { get; set; }
-        public string Path { get; set; }
-        public string Icon { get; set; }
-        public double Size { get; set; }
+        public Folder() : base(nameof(Folder))
+        {
+
+        }
+
         public int AmountOfFiles { get; set; }
     }
 }

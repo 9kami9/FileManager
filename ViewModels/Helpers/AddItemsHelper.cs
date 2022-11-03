@@ -11,23 +11,22 @@ namespace FileManager.ViewModels.Helpers
 {
     public class AddItemsHelper
     {
-        public static void AddNewDrive(DriveInfo drive, int fileCount, ObservableCollection<IModel> Items)
+        public static Drive CreateDrive(DriveInfo drive)
         {
-            Items.Add(new Drive()
+            return new Drive()
             {
                 Name = drive.Name,
                 Path = drive.RootDirectory.ToString(),
                 Icon = "/Icons/drive.png",
                 Size = drive.TotalSize,
                 AvailableSpace = drive.AvailableFreeSpace,
-                DriveType = drive.DriveType,
-                FileCount = fileCount
-            });
+                DriveType = drive.DriveType
+            };
         }
 
-        public static void AddFileToListItem(FileInfo fileInfo, ObservableCollection<IModel> Items)
+        public static IModel CreateFile(FileInfo fileInfo)
         {
-            Items.Add(new Models.File()
+            return new Models.File()
             {
                 Name = fileInfo.Name,
                 Path = fileInfo.FullName,
@@ -36,33 +35,34 @@ namespace FileManager.ViewModels.Helpers
                 LastWriteTime = fileInfo.LastWriteTime,
                 LastAccessTime = fileInfo.LastAccessTime,
                 DateCreated = fileInfo.CreationTime
-            });
+            };
         }
 
-        public static void AddFolderToListItem(FileInfo fileInfo, ObservableCollection<IModel> Items)
+        public static IModel CreateFolder(FileInfo fileInfo)
         {
+            var folder = new Models.Folder()
+            { 
+                Name = fileInfo.Name,
+                Path = fileInfo.FullName,
+                Icon = "/Icons/folder.png"
+            };
+
             try
             {
                 int amountOfFiles = Directory.GetFiles(fileInfo.FullName.ToString(), "*", SearchOption.TopDirectoryOnly).Length;
                 long fileSize = Directory.GetFiles(fileInfo.FullName.ToString(), "*", SearchOption.TopDirectoryOnly).Sum(x => new FileInfo(x).Length);
-                AddNewFolder(fileInfo, amountOfFiles, fileSize, Items);
+                folder.Size = fileSize;
+                folder.AmountOfFiles = amountOfFiles;
             }
             catch (UnauthorizedAccessException)
             {
-                AddNewFolder(fileInfo, 0, 0, Items);
+                folder.Size = 0;
+                folder.AmountOfFiles = 0;
             }
+
+            return folder;
         }
 
-        private static void AddNewFolder(FileInfo fileInfo, int amountOfFiles, long size, ObservableCollection<IModel> Items)
-        {
-            Items.Add(new Folder()
-            {
-                Name = fileInfo.Name,
-                Path = fileInfo.FullName,
-                Icon = "/Icons/folder.png",
-                AmountOfFiles = amountOfFiles,
-                Size = size
-            });
-        }
+
     }
 }

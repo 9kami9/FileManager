@@ -7,6 +7,7 @@
     xmlns:local="clr-namespace:FileManager.ViewModels"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:FileManager.ViewModels"
+    xmlns:vm1="clr-namespace:FileManager.ViewModels"
     Title="FileManager"
     Width="900"
     Height="600"
@@ -15,9 +16,6 @@
     <Window.DataContext>
         <vm:MainViewModel />
     </Window.DataContext>
-    <Window.Resources>
-        <local:MainViewModel x:Key="viewModel" />
-    </Window.Resources>
 
     <Border Style="{StaticResource windowBorderStyle}">
         <Border Style="{StaticResource mainBorderStyle}">
@@ -40,24 +38,19 @@
                     <Button Command="{Binding SearchCommand}" Style="{StaticResource searchButtonStyle}" />
                 </StackPanel>
 
-                <ListView ItemsSource="{Binding Items}" SelectedValue="{Binding SelectedItem, UpdateSourceTrigger=PropertyChanged}">
+                <ListView ItemsSource="{Binding Items}">
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <StackPanel x:Name="item" Style="{StaticResource itemsStackPanelStyle}">
                                 <Image Source="{Binding Icon}" />
                                 <Label Content="{Binding Name}" />
                                 <StackPanel.InputBindings>
-                                    <MouseBinding Command="{Binding DoubleClickCommand, Source={StaticResource viewModel}}" MouseAction="LeftDoubleClick" />
+                                    <MouseBinding Command="{Binding OpenFileCommand}" MouseAction="LeftDoubleClick" />
+                                    <MouseBinding Command="{Binding SelectFileCommand}" MouseAction="LeftClick" />
                                 </StackPanel.InputBindings>
                             </StackPanel>
                         </DataTemplate>
                     </ListView.ItemTemplate>
-                    <!--<ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem" >
-                            <EventSetter Event="MouseDoubleClick"
-                                         Handler="ListViewItem_MouseDoubleClick"/>
-                        </Style>
-                    </ListView.ItemContainerStyle>-->
                 </ListView>
 
                 <Border Style="{StaticResource infoBorderStyle}">

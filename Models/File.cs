@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 
 namespace FileManager.Models
 {
-    public class File : IModel
+    public class File : BaseModel
     {
-        public string Name { get; set; }
-        public string Path { get; set; }
-        public string Icon { get; set; }
-        public double Size { get; set; }
+        public File() : base(nameof(File))
+        {
+
+        }
+
         public DateTime DateCreated { get; set; }
         public DateTime LastWriteTime { get; set; }
         public DateTime LastAccessTime { get; set; }

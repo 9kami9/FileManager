@@ -11,5 +11,7 @@ namespace FileManager.Models
         string Name { get; set; }
         string Path { get; set; }
         string Icon { get; set; }
+        long Size { get; set; }
+        string Type { get; }
     }
 }
